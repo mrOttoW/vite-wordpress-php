@@ -66,15 +66,15 @@ When using the <a href="https://github.com/mrOttoW/vite-wordpress">vite-wordpres
 3. It updates script tags from these specific scripts to use as modules and injects Vite's client to enable HMR (Hot Module Replacement).
 4. Using Vite's client and module support, it can also include CSS source files that are imported into JavaScript files.
 
-It works for both JS and CSS entries. 
+It works for both JS and CSS entries.
 
-It's compatible with a traditional setup with <a href="https://github.com/mrOttoW/vite-wordpress">vite-wordpress</a> without the need for a manifest or hashed files. 
+It's compatible with a traditional setup with <a href="https://github.com/mrOttoW/vite-wordpress">vite-wordpress</a> without the need for a manifest or hashed files.
 
-However, when using a manifest, the Manifest Resolver will assist in resolving the files through the manifest 
+However, when using a manifest, the Manifest Resolver will assist in resolving the files through the manifest
 offering better precision for a more complex assets folder & file structure.
 
 ### Manifest Resolver
-The `ManifestResolver` class handles reading and accessing the Vite manifest file and additionally integrates into the dev server for better precision. 
+The `ManifestResolver` class handles reading and accessing the Vite manifest file and additionally integrates into the dev server for better precision.
 
 You can use the `ManifestResolver` instance, which needs to be wrapped in a function or helper class to work within hooks. Alternatively, you can use the `Manifest` facade, which handles this for you.
 
@@ -108,7 +108,7 @@ function manifest() {
 
 	if ( ! isset( $manifest ) ) {
 		$manifest = new ManifestResolver();
-		$manifest->set_manifest( 'absolute/path/manifest.json' ); // Also works with a PHP manifest file. 
+		$manifest->set_manifest( 'absolute/path/manifest.json' ); // Also works with a PHP manifest file.
 	}
 
 	return $manifest;

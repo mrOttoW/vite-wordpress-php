@@ -32,7 +32,7 @@ class Manifest {
 	 */
 	public static function create( ?string $manifest_path = null, ?string $src_dir = null ): ManifestResolverInterface {
 		if ( ! isset( static::$manifest ) ) {
-			static::$manifest = ( new \ViteWordPress\ManifestResolver() )->set_manifest( $manifest_path );
+			static::$manifest = ( new ManifestResolver() )->set_manifest( $manifest_path );
 
 			if ( isset( $src_dir ) ) {
 				static::$manifest->set_src( $src_dir );
