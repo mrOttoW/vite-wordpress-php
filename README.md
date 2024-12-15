@@ -76,7 +76,7 @@ offering better precision for a more complex assets folder & file structure.
 ### Manifest Resolver
 The `ManifestResolver` class handles reading and accessing the Vite manifest file and additionally integrates into the dev server for better precision. 
 
-You can use the `ManifestResolver` instance which you'll need to wrap with a function or into a helper class to be able to use within hooks. Or you can use the `Manifest` facade that does it for you.
+You can use the `ManifestResolver` instance, which needs to be wrapped in a function or helper class to work within hooks. Alternatively, you can use the `Manifest` facade, which handles this for you.
 
 #### Example using the facade:
 ```php
