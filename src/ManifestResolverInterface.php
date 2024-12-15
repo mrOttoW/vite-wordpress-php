@@ -51,9 +51,9 @@ interface ManifestResolverInterface {
 	 *
 	 * @param string|null $id The identifier of the manifest entry, or null to retrieve the entire manifest.
 	 *
-	 * @return ManifestChunk|array<string, ManifestChunk> The manifest entry or the entire manifest.
+	 * @return ManifestChunk|array<string, ManifestChunk>|null The manifest entry, the entire manifest or null if not found.
 	 */
-	public function get( ?string $id = null ): array;
+	public function get( ?string $id = null ): ?array;
 
 	/**
 	 * Retrieves a manifest entry by its file name.

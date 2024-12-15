@@ -10,3 +10,5 @@ parameters:
 		- %rootDir%/../../php-stubs/wordpress-stubs/wordpress-stubs.php
 	paths:
 		- src/
+	excludePaths:
+		- tests/*

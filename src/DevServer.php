@@ -9,6 +9,8 @@ namespace ViteWordPress;
 
 /**
  * Class DevServer
+ *
+ * @phpstan-import-type PluginConfig from DevServerInterface
  */
 class DevServer implements DevServerInterface {
 	/**
@@ -201,8 +203,8 @@ class DevServer implements DevServerInterface {
 	public function inject_vite_client(): void {
 		// phpcs:disable WordPress.WP.EnqueuedResources
 		?>
-        <script type="module" src="<?php echo esc_url( $this->get_client_url() ); ?>"></script>
-        <script type="module">window.process = {env: {NODE_ENV: 'development'}};</script>
+		<script type="module" src="<?php echo esc_url( $this->get_client_url() ); ?>"></script>
+		<script type="module">window.process = {env: {NODE_ENV: 'development'}};</script>
 		<?php
 		// phpcs:enable
 	}
@@ -253,7 +255,7 @@ class DevServer implements DevServerInterface {
 
 		// Remove query parameters and base path to get the file name.
 		$file_out_dir_path = preg_replace( '/\?.*$/', '', $src );
-		$file_out_dir_path = explode( "{$this->vite_config['base']}/{$this->vite_config['outDir']}/", $file_out_dir_path );
+		$file_out_dir_path = explode( "{$this->get_config('base')}/{$this->get_config('outDir')}/", $file_out_dir_path );
 
 		if ( ! isset( $file_out_dir_path[1] ) ) {
 			return $src;
@@ -271,11 +273,11 @@ class DevServer implements DevServerInterface {
 
 		// If the file wasn't resolved via the manifest, try to resolve from the file system.
 		if ( ! $resolved ) {
-			$file_name        = str_replace( '.css', ".{$this->vite_config['css']}", $file_out_dir_path[1] );
-			$file_system_path = "{$this->get_server_path()}/{$this->vite_config['srcDir']}/{$file_name}";
+			$file_name        = str_replace( '.css', ".{$this->get_config('css')}", $file_out_dir_path[1] );
+			$file_system_path = "{$this->get_server_path()}/{$this->get_config('srcDir')}/{$file_name}";
 
 			if ( file_exists( $file_system_path ) ) {
-				$resolved = "{$this->get_base_url()}/{$this->vite_config['srcDir']}/{$file_name}";
+				$resolved = "{$this->get_base_url()}/{$this->get_config('srcDir')}/{$file_name}";
 			}
 		}
 
@@ -319,7 +321,7 @@ class DevServer implements DevServerInterface {
 	 * @return bool Whether the URL contains the base path.
 	 */
 	public function contains_base( string $url ): bool {
-		if ( '' !== $this->vite_config['base'] && false !== strpos( $url, $this->vite_config['base'] ) ) {
+		if ( '' !== $this->get_config( 'base' ) && false !== strpos( $url, $this->get_config( 'base' ) ) ) {
 			return true;
 		} else {
 			return false;
@@ -365,7 +367,7 @@ class DevServer implements DevServerInterface {
 	 * @return string The base URL (eg: my-host:5173/wp-content/plugins/my-plugin).
 	 */
 	public function get_base_url(): string {
-		return untrailingslashit( "{$this->get_server_url()}{$this->vite_config['base']}" );
+		return untrailingslashit( "{$this->get_server_url()}{$this->get_config('base')}" );
 	}
 
 	/**
@@ -383,6 +385,39 @@ class DevServer implements DevServerInterface {
 	 * @return string Server path (eg: server/path/wp-content/plugins/my-plugin).
 	 */
 	public function get_server_path(): string {
-		return untrailingslashit( ABSPATH ) . $this->vite_config['base'];
+		return untrailingslashit( ABSPATH ) . $this->get_config( 'base' );
+	}
+
+	/**
+	 * Get the server host.
+	 *
+	 * @return string The server host (eg: my-host).
+	 */
+	public function get_server_host(): string {
+		return $this->vite_server_host;
+	}
+
+	/**
+	 * Get the server port.
+	 *
+	 * @return string The server port (eg: 5173).
+	 */
+	public function get_server_port(): string {
+		return $this->vite_server_port;
+	}
+
+	/**
+	 * Get the vite plugin config.
+	 *
+	 * @param string|null $key Config key to get.
+	 *
+	 * @return PluginConfig|string|boolean|null The plugin config.
+	 */
+	public function get_config( ?string $key = null ) {
+		if ( ! isset( $this->vite_config ) ) {
+			return null;
+		}
+
+		return isset( $key ) ? $this->vite_config[ $key ] : $this->vite_config;
 	}
 }

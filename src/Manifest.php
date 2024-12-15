@@ -58,9 +58,9 @@ class Manifest {
 	 *
 	 * @param string|null $id The asset ID. If null, returns the entire manifest.
 	 *
-	 * @return ManifestChunk The asset entry or the full manifest as an array.
+	 * @return ManifestChunk|array<string, ManifestChunk>|null The manifest entry, the entire manifest or null if not found.
 	 */
-	public static function get( ?string $id = null ): array {
+	public static function get( ?string $id = null ): ?array {
 		return static::$manifest->get( $id );
 	}
 

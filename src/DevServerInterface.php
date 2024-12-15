@@ -9,6 +9,14 @@ namespace ViteWordPress;
 
 /**
  * Interface DevServerInterface
+ *
+ * @phpstan-type PluginConfig array{
+ *        base: string,
+ *        srcDir: string,
+ *        outDir: string,
+ *        css: string,
+ *        manifest: boolean|string
+ *    }
  */
 interface DevServerInterface {
 	/**
@@ -111,4 +119,27 @@ interface DevServerInterface {
 	 * @return string Server path (eg: server/path/wp-content/plugins/my-plugin).
 	 */
 	public function get_server_path(): string;
+
+	/**
+	 * Get the server host.
+	 *
+	 * @return string The server host (eg: my-host).
+	 */
+	public function get_server_host(): string;
+
+	/**
+	 * Get the server port.
+	 *
+	 * @return string The server port (eg: 5173).
+	 */
+	public function get_server_port(): string;
+
+	/**
+	 * Get the vite plugin config.
+	 *
+	 * @param string|null $key Config key to get.
+	 *
+	 * @return PluginConfig|string|boolean|null The plugin config.
+	 */
+	public function get_config( ?string $key = null );
 }
