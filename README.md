@@ -7,8 +7,9 @@
 Backend Utilities for <a href="https://github.com/mrOttoW/vite-wordpress">vite-wordpress</a> to manage HMR, the development server and handle the manifest in a traditional WordPress PHP environment.
 </p>
   <img src="https://img.shields.io/github/v/release/mrOttoW/vite-wordpress-php" alt="GitHub release" />
+   <img alt="Packagist Version" src="https://img.shields.io/packagist/v/mrottow/vite-wordpress">
   <img src="https://img.shields.io/github/last-commit/mrOttoW/vite-wordpress-php" alt="GitHub last commit"/>
-  <img src="https://img.shields.io/npm/l/vite-wordpress-php" alt="licence" />
+  <img alt="Packagist License" src="https://img.shields.io/packagist/l/mrottow/vite-wordpress">
 </div>
 
 ## Features
@@ -80,14 +81,17 @@ You can use the `ManifestResolver` instance which you'll need to wrap with a fun
 #### Example using the facade:
 ```php
 
-$manifest = ViteWordPress\Manifest::create( 'absolute/path/to/manifest.json' ); // Also works with a PHP manifest file.
+use ViteWordPress\DevServer;
+use ViteWordPress\Manifest;
+
+$manifest = Manifest::create( 'absolute/path/to/manifest.json' ); // Also works with a PHP manifest file.
 
 // When using the dev server you need to include the manifest.
-( new ViteWordPress\DevServer( $manifest ) )->register();
+( new DevServer( $manifest ) )->register();
 
 // Enqueue scripts hook.
 add_action( 'wp_enqueue_scripts', function () {
-	$file_name = ViteWordPress\Manifest::get_file( 'app.js' );
+	$file_name = Manifest::get_file( 'app.js' );
 
 	wp_enqueue_script( 'my-app', get_stylesheet_directory() . "build/{$file_name}" );
 } );
@@ -96,11 +100,14 @@ add_action( 'wp_enqueue_scripts', function () {
 #### Example using the instance:
 ```php
 
+use ViteWordPress\DevServer;
+use ViteWordPress\ManifestResolver;
+
 function manifest() {
 	static $manifest;
 
 	if ( ! isset( $manifest ) ) {
-		$manifest = new ViteWordPress\ManifestResolver();
+		$manifest = new ManifestResolver();
 		$manifest->set_manifest( 'absolute/path/manifest.json' ); // Also works with a PHP manifest file. 
 	}
 
@@ -108,7 +115,7 @@ function manifest() {
 }
 
 // When using the dev server you need to include the manifest.
-( new ViteWordPress\DevServer( manifest() ) )->register();
+( new DevServer( manifest() ) )->register();
 
 // Enqueue scripts hook.
 add_action( 'wp_enqueue_scripts', function () {
