@@ -60,7 +60,7 @@ The `DevServer` class integrates the Vite development server with WordPress for 
     ->register();
 ```
 
-When using the <a href="https://github.com/mrOttoW/vite-wordpress">vite-wordpress</a> ViteJS plugin, and files has been built using `yarn build` or `npm run build` and the dev server is running through `yarn start` or `npm run start`:
+When using the <a href="https://github.com/mrOttoW/vite-wordpress">vite-wordpress</a> ViteJS plugin, and files has been built using `vite build` and the dev server is running through command `vite`:
 1. DevServer automatically detects all enqueued scripts from the project through hooks, using the `base`, `srcDir`, and `outDir` settings from the vite plugin.
 2. It resolves these scripts to source files served by the development server.
 3. It updates script tags from these specific scripts to use as modules and injects Vite's client to enable HMR (Hot Module Replacement).
