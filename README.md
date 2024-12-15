@@ -4,11 +4,11 @@
   </a>
   <h1>Vite PHP utilities for WordPress</h1>
   <p>
-Backend Utilities for <a href="https://github.com/mrOttoW/vite-wordpress">vite-wordpress</a> to manage HMR, the development server and handle the manifest in a WordPress PHP environment.
+Backend Utilities for <a href="https://github.com/mrOttoW/vite-wordpress">vite-wordpress</a> to manage HMR, the development server and handle the manifest in a traditional WordPress PHP environment.
 </p>
   <img src="https://img.shields.io/github/v/release/mrOttoW/vite-wordpress-php" alt="GitHub release" />
-  <img src="https://img.shields.io/github/last-commit/mrOttoW/vite-wordpress" alt="GitHub last commit"/>
-  <img src="https://img.shields.io/npm/l/vite-wordpress" alt="licence" />
+  <img src="https://img.shields.io/github/last-commit/mrOttoW/vite-wordpress-php" alt="GitHub last commit"/>
+  <img src="https://img.shields.io/npm/l/vite-wordpress-php" alt="licence" />
 </div>
 
 ## Features
@@ -22,7 +22,7 @@ Backend Utilities for <a href="https://github.com/mrOttoW/vite-wordpress">vite-w
 
 ## Requirements
 
-- PHP 7,4 or higher
+- PHP 7.4 or higher
 - WordPress 5.0 or higher
 - A valid ViteJS configuration using <a href="https://github.com/mrOttoW/vite-wordpress">vite-wordpress</a>
 
@@ -60,7 +60,7 @@ The `DevServer` class integrates the Vite development server with WordPress for 
 ```
 
 When using the <a href="https://github.com/mrOttoW/vite-wordpress">vite-wordpress</a> ViteJS plugin, and files has been built using `yarn build` or `npm run build` and the dev server is running through `yarn start` or `npm run start`:
-1. The development server automatically detects all enqueued scripts from the project through hooks, using the `base`, `srcDir`, and `outDir` settings from the vite plugin.
+1. DevServer automatically detects all enqueued scripts from the project through hooks, using the `base`, `srcDir`, and `outDir` settings from the vite plugin.
 2. It resolves these scripts to source files served by the development server.
 3. It updates script tags from these specific scripts to use as modules and injects Vite's client to enable HMR (Hot Module Replacement).
 4. Using Vite's client and module support, it can also include CSS source files that are imported into JavaScript files.
@@ -82,7 +82,7 @@ You can use the `ManifestResolver.php` instance which you'll need to wrap with a
 
 $manifest = ViteWordPress\Manifest::create('absolute/path/to/manifest.json'); // Also works with a PHP manifest file.
 
-// When using the dev server you need to include the manifest.
+/* When using the dev server you need to include the manifest. */
 (new ViteWordPress\DevServer($manifest))->register();
 
 // Enqueue scripts hook.
@@ -106,7 +106,7 @@ function manifest() {
     return $manifest;
 }
 
-// When using the dev server you need to include the manifest.
+/* When using the dev server you need to include the manifest. */
 (new ViteWordPress\DevServer(manifest()))->register();
 
 // Enqueue scripts hook.

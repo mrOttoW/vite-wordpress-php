@@ -2,7 +2,7 @@
   "name": "mrottow/vite-wordpress",
   "description": "A collection of back-end utilities for ViteWordpress.",
   "type": "library",
-  "license": "GPL-2.0-only",
+  "license": "MIT",
   "keywords": [
     "vite",
     "vitejs",
