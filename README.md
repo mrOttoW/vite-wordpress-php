@@ -138,16 +138,3 @@ The manifest resolver is built off an interface so you're able to create your ow
 | `set_client_hook($priority)`| `5`            | (optional) Sets the priority for the Vite client hook. |
 
 ---
-
-## Development Workflow
-
-1. Start the Vite dev server:
-   ```bash
-   npm run dev
-   ```
-2. Use the `DevServer` class to integrate HMR in WordPress.
-3. During production, generate the manifest file:
-   ```bash
-   npm run build
-   ```
-4. Use the `ManifestResolver` to enqueue scripts and styles based on the manifest.
