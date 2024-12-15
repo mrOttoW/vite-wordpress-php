@@ -1,0 +1,9 @@
+vendor
+docs
+.phpdoc/cache
+composer.lock
+
+# Editor settings
+.vscode/settings.json
+.vscode/launch.json
+.idea/*
