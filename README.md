@@ -100,7 +100,8 @@ function manifest() {
     static $manifest;
     
     if (!isset($manifest)) {
-        $manifest = (new ViteWordPress\ManifestResolver())->set_manifest('absolute/path/manifest.json'); // Also works with a PHP manifest file.
+        $manifest = (new ViteWordPress\ManifestResolver());
+        $manifest->set_manifest('absolute/path/manifest.json'); // Also works with a PHP manifest file.
     }
     
     return $manifest;
