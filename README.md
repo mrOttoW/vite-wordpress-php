@@ -82,7 +82,7 @@ You can use the `ManifestResolver.php` instance which you'll need to wrap with a
 
 $manifest = ViteWordPress\Manifest::create('absolute/path/to/manifest.json'); // Also works with a PHP manifest file.
 
-/* When using the dev server you need to include the manifest. */
+// When using the dev server you need to include the manifest.
 (new ViteWordPress\DevServer($manifest))->register();
 
 // Enqueue scripts hook.
@@ -106,7 +106,7 @@ function manifest() {
     return $manifest;
 }
 
-/* When using the dev server you need to include the manifest. */
+// When using the dev server you need to include the manifest.
 (new ViteWordPress\DevServer(manifest()))->register();
 
 // Enqueue scripts hook.
