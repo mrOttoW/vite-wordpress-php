@@ -80,42 +80,42 @@ You can use the `ManifestResolver.php` instance which you'll need to wrap with a
 #### Example using the facade:
 ```php
 
-$manifest = ViteWordPress\Manifest::create('absolute/path/to/manifest.json'); // Also works with a PHP manifest file.
+$manifest = ViteWordPress\Manifest::create( 'absolute/path/to/manifest.json' ); // Also works with a PHP manifest file.
 
 // When using the dev server you need to include the manifest.
-(new ViteWordPress\DevServer($manifest))->register();
+( new ViteWordPress\DevServer( $manifest ) )->register();
 
 // Enqueue scripts hook.
-add_action('wp_enqueue_scripts', function() {
-    $file_name = ViteWordPress\Manifest::get_file('app.js');
-       
-    wp_enqueue_script('my-app', get_stylesheet_directory() . "build/{$file_name}");
-})
+add_action( 'wp_enqueue_scripts', function () {
+	$file_name = ViteWordPress\Manifest::get_file( 'app.js' );
+
+	wp_enqueue_script( 'my-app', get_stylesheet_directory() . "build/{$file_name}" );
+} );
 ```
 
 #### Example using the instance:
 ```php
 
 function manifest() {
-    static $manifest;
-    
-    if (!isset($manifest)) {
-        $manifest = new ViteWordPress\ManifestResolver();
-        $manifest->set_manifest('absolute/path/manifest.json'); // Also works with a PHP manifest file.
-    }
-    
-    return $manifest;
+	static $manifest;
+
+	if ( ! isset( $manifest ) ) {
+		$manifest = new ViteWordPress\ManifestResolver();
+		$manifest->set_manifest( 'absolute/path/manifest.json' ); // Also works with a PHP manifest file.
+	}
+
+	return $manifest;
 }
 
 // When using the dev server you need to include the manifest.
-(new ViteWordPress\DevServer(manifest()))->register();
+( new ViteWordPress\DevServer( manifest() ) )->register();
 
 // Enqueue scripts hook.
-add_action('wp_enqueue_scripts', function() {
-    $file_name = manifest()->get('app.js')['file'];
-    
-    wp_enqueue_script('my-app', get_stylesheet_directory() . "build/{$file_name}");
-})
+add_action( 'wp_enqueue_scripts', function () {
+	$file_name = manifest()->get( 'app.js' )['file'];
+
+	wp_enqueue_script( 'my-app', get_stylesheet_directory() . "build/{$file_name}" );
+} );
 ```
 
 The manifest resolver is built off an interface so you're able to create your own implementation to include into the dev server.
