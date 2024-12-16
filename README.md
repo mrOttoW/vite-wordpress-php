@@ -145,3 +145,8 @@ The manifest resolver is built off an interface so you're able to create your ow
 | `set_client_hook($priority)`| `5`            | (optional) Sets the priority for the Vite client hook. |
 
 ---
+
+
+## Example
+An example within a WordPress plugin can be found here:
+https://github.com/mrOttoW/vite-wordpress-plugin-block-example
