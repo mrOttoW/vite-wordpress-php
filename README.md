@@ -4,7 +4,7 @@
   </a>
   <h1>Vite PHP utilities for WordPress</h1>
   <p>
-Backend Utilities for <a href="https://github.com/mrOttoW/vite-wordpress">vite-wordpress</a> to manage HMR, the development server and handle the manifest in a traditional WordPress PHP environment.
+Backend Utilities for <a href="https://github.com/mrOttoW/vite-wordpress">vite-wordpress</a> to integrate Vite's development server and HMR into WordPress, as well as manage the manifest file.
 </p>
   <img src="https://img.shields.io/github/v/release/mrOttoW/vite-wordpress-php" alt="GitHub release" />
    <img alt="Packagist Version" src="https://img.shields.io/packagist/v/mrottow/vite-wordpress">
@@ -15,7 +15,7 @@ Backend Utilities for <a href="https://github.com/mrOttoW/vite-wordpress">vite-w
 ## Features
 
 - **Manifest Resolver:** Parse and manage Vite's manifest file for registering assets in WordPress for production.
-- **Dev Server & HMR Integration:** Connect Vite's HMR (Hot Module Replacement) dev server to WordPress during development.
+- **Dev Server & HMR Integration:** Integrates Vite's HMR (Hot Module Replacement) and dev server into WordPress during development.
 - **Automatic Script Injection:** Automatically injects Vite client scripts into WordPress during development.
 - **Automatic Source Files Injection:** Automatically changes src urls from enqueued assets to source files for HMR during development.
 
