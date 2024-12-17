@@ -17,7 +17,9 @@ Backend Utilities for <a href="https://github.com/mrOttoW/vite-wordpress">vite-w
 - **Manifest Resolver:** Parse and manage Vite's manifest file for registering assets in WordPress for production.
 - **Dev Server & HMR Integration:** Integrates Vite's HMR (Hot Module Replacement) and dev server into WordPress during development.
 - **Automatic Script Injection:** Automatically injects Vite client scripts into WordPress during development.
-- **Automatic Source Files Injection:** Automatically changes src urls from enqueued assets to source files for HMR during development.
+- **Automatic Source Files Injection:**
+  - Automatically changes src urls from enqueued scripts/styles to source files for HMR during development.
+  - Automatically changes render template paths from dynamic blocks in block.json to source files for HMR during development.
 
 ---
 
@@ -61,10 +63,12 @@ The `DevServer` class integrates the Vite development server with WordPress for 
 ```
 
 When using the <a href="https://github.com/mrOttoW/vite-wordpress">vite-wordpress</a> ViteJS plugin, if files have been built using `vite build`, are enqueued and the development server is running via the `vite` command:
-1. DevServer automatically detects all enqueued scripts from the project through hooks, using the `base`, `srcDir`, and `outDir` settings from the vite plugin.
-2. It resolves these scripts to source files served by the development server.
-3. It updates script tags from these specific scripts to use as modules and injects Vite's client to enable HMR (Hot Module Replacement).
-4. Using Vite's client and module support, it can also include CSS source files that are imported into JavaScript files.
+
+1. DevServer automatically detects all enqueued scripts & templates from the project through hooks, using the `base`, `srcDir`, and `outDir` settings from the vite plugin.
+2. It resolves scripts to source files served by the development server.
+3. It resolves templates to source files from the `srcDir` folder.
+4. It updates script tags from the project to use as modules and injects Vite's client to enable HMR (Hot Module Replacement).
+5. Using Vite's client and module support, it can also include CSS source files that are imported into JavaScript files.
 
 It works for both JS and CSS entries.
 
