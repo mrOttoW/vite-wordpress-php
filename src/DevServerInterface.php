@@ -68,22 +68,13 @@ interface DevServerInterface {
 	public function is_config_active(): bool;
 
 	/**
-	 * Check if the URL contains the base path.
+	 * Resolves an asset path either from the manifest or the file system.
 	 *
-	 * @param string $url Source URL.
+	 * @param string $file_path The original file path.
 	 *
-	 * @return bool Whether the URL contains the base path.
+	 * @return string|false The source path (relative from the srcDir) or false if not found.
 	 */
-	public function contains_base( string $url ): bool;
-
-	/**
-	 * Check if the URL contains the server base URL.
-	 *
-	 * @param string $url Source URL.
-	 *
-	 * @return bool Whether the URL contains the server base URL.
-	 */
-	public function contains_server_url( string $url ): bool;
+	public function get_source_path( string $file_path );
 
 	/**
 	 * Get the URL to the Vite plugin configuration.
@@ -142,4 +133,22 @@ interface DevServerInterface {
 	 * @return PluginConfig|string|boolean|null The plugin config.
 	 */
 	public function get_config( ?string $key = null );
+
+	/**
+	 * Check if the path contains the base path.
+	 *
+	 * @param string $path Source path.
+	 *
+	 * @return bool Whether the path contains the base path.
+	 */
+	public function contains_base( string $path ): bool;
+
+	/**
+	 * Check if the URL contains the server base URL.
+	 *
+	 * @param string $url Source URL.
+	 *
+	 * @return bool Whether the URL contains the server base URL.
+	 */
+	public function contains_server_url( string $url ): bool;
 }

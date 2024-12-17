@@ -30,7 +30,7 @@ class DevServer implements DevServerInterface {
 	/**
 	 * Vite plugin configuration array.
 	 *
-	 * @var array<string, string|bool>|null
+	 * @var PluginConfig|null
 	 */
 	protected ?array $vite_config = null;
 
@@ -76,12 +76,13 @@ class DevServer implements DevServerInterface {
 	public function register(): self {
 		if ( $this->is_config_active() && $this->is_client_active() ) {
 			add_action( 'wp_head', [ $this, 'inject_vite_client' ], $this->vite_client_hook_priority );
-			add_action( 'init', [ $this, 'modify_wp_import_map_hook' ] );
+			add_action( 'init', [ $this, 'prioritize_import_map_hook' ] );
 			add_filter( 'body_class', [ $this, 'filter_body_class' ], 999 );
-			add_filter( 'script_module_loader_src', [ $this, 'modify_asset_loader_src' ], 999, 2 );
-			add_filter( 'script_loader_src', [ $this, 'modify_asset_loader_src' ], 999, 2 );
-			add_filter( 'style_loader_src', [ $this, 'modify_asset_loader_src' ], 999, 2 );
-			add_filter( 'script_loader_tag', [ $this, 'modify_asset_loader_tags' ], 999, 3 );
+			add_filter( 'script_module_loader_src', [ $this, 'filter_asset_loader_src' ], 999, 2 );
+			add_filter( 'script_loader_src', [ $this, 'filter_asset_loader_src' ], 999, 2 );
+			add_filter( 'style_loader_src', [ $this, 'filter_asset_loader_src' ], 999, 2 );
+			add_filter( 'script_loader_tag', [ $this, 'filter_asset_loader_tags' ], 999, 3 );
+			add_filter( 'block_type_metadata', [ $this, 'filter_block_type_metadata' ] );
 		}
 
 		return $this;
@@ -122,6 +123,19 @@ class DevServer implements DevServerInterface {
 	 */
 	public function set_client_hook( int $level ): self {
 		$this->vite_client_hook_priority = $level;
+
+		return $this;
+	}
+
+	/**
+	 * Sets the config (mainly used for tests).
+	 *
+	 * @param PluginConfig $config The config.
+	 *
+	 * @return $this
+	 */
+	public function set_config( array $config ): self {
+		$this->vite_config = $config;
 
 		return $this;
 	}
@@ -210,6 +224,23 @@ class DevServer implements DevServerInterface {
 	}
 
 	/**
+	 * Re-hooks the WordPress import map to a more prioritized position.
+	 *
+	 * This ensures the WP import map is loaded before the Vite client script (for modules).
+	 *
+	 * @return void
+	 */
+	public function prioritize_import_map_hook(): void {
+		global $wp_script_modules;
+
+		if ( isset( $wp_script_modules ) ) {
+			$position = wp_is_block_theme() ? 'wp_head' : 'wp_footer';
+			remove_action( $position, [ $wp_script_modules, 'print_import_map' ] );
+			add_action( $position, [ $wp_script_modules, 'print_import_map' ], $this->vite_client_hook_priority - 1 );
+		}
+	}
+
+	/**
 	 * Adds a class to the body element if the Vite dev server is active.
 	 *
 	 * @param string[] $classes Body classes.
@@ -223,79 +254,71 @@ class DevServer implements DevServerInterface {
 	}
 
 	/**
-	 * Modifies the WordPress import map hook.
+	 * Filters the block type metadata render path and resolves it to the un-compiled file.
 	 *
-	 * Ensures that the WP import map is loaded before the Vite client script (for modules).
+	 * @param array<string, mixed> $metadata Block metadata.
 	 *
-	 * @return void
+	 * @return array<string, mixed> Modified metadata.
 	 */
-	public function modify_wp_import_map_hook(): void {
-		global $wp_script_modules;
-
-		if ( isset( $wp_script_modules ) ) {
-			$position = wp_is_block_theme() ? 'wp_head' : 'wp_footer';
-			remove_action( $position, [ $wp_script_modules, 'print_import_map' ] );
-			add_action( $position, [ $wp_script_modules, 'print_import_map' ], $this->vite_client_hook_priority - 1 );
+	public function filter_block_type_metadata( array $metadata ): array {
+		if ( ! isset( $metadata['render'] ) ) {
+			return $metadata;
 		}
+
+		$block_dir_path   = dirname( $metadata['file'] );
+		$render_file_path = path_join( $block_dir_path, basename( $metadata['render'] ) );
+
+		if ( ! $this->contains_base( $render_file_path ) || ! is_file( $render_file_path ) ) {
+			return $metadata;
+		}
+
+		$resolved_path = $this->get_source_path( $render_file_path );
+
+		if ( $resolved_path ) {
+			$resolved_path = "{$this->get_server_path()}/{$resolved_path}";
+
+			$metadata['render'] = $this->get_relative_local_path( $block_dir_path, $resolved_path );
+		}
+
+		return $metadata;
 	}
 
 	/**
-	 * Modifies the script loader src and replaces it with the un-compiled URL
-	 * on the dev server.
+	 * Filters the script loader src and resolves it with the
+	 * un-compiled URL from the dev server.
 	 *
 	 * @param string $src The original script source URL.
 	 * @param string $id The script ID/Handle.
 	 *
 	 * @return string The modified or original source URL.
 	 */
-	public function modify_asset_loader_src( string $src, string $id ): string {
+	public function filter_asset_loader_src( string $src, string $id ): string {
 		if ( ! $this->contains_base( $src ) ) {
 			return $src;
 		}
 
-		// Remove query parameters and base path to get the file name.
-		$file_out_dir_path = preg_replace( '/\?.*$/', '', $src );
-		$file_out_dir_path = explode( "{$this->get_config('base')}/{$this->get_config('outDir')}/", $file_out_dir_path );
-
-		if ( ! isset( $file_out_dir_path[1] ) ) {
-			return $src;
+		if ( isset( $this->resolved_assets[ $id ] ) ) {
+			return $this->resolved_assets[ $id ];
 		}
 
-		$resolved = false;
+		$resolved_path = $this->get_source_path( $src );
 
-		// Check if manifest exists and resolve from the manifest.
-		if ( isset( $this->manifest ) ) {
-			$manifest_entry = $this->manifest->get_by_file( $file_out_dir_path[1] );
-			if ( $manifest_entry && isset( $manifest_entry['src'] ) ) {
-				$resolved = "{$this->get_base_url()}/{$manifest_entry['src']}";
-			}
-		}
+		if ( $resolved_path ) {
+			$resolved_path = "{$this->get_base_url()}/{$resolved_path}";
 
-		// If the file wasn't resolved via the manifest, try to resolve from the file system.
-		if ( ! $resolved ) {
-			$file_name        = str_replace( '.css', ".{$this->get_config('css')}", $file_out_dir_path[1] );
-			$file_system_path = "{$this->get_server_path()}/{$this->get_config('srcDir')}/{$file_name}";
+			$this->resolved_assets[ $id ] = $resolved_path;
 
-			if ( file_exists( $file_system_path ) ) {
-				$resolved = "{$this->get_base_url()}/{$this->get_config('srcDir')}/{$file_name}";
-			}
-		}
-
-		// If resolved, update src and track the asset; otherwise, return the original src.
-		if ( $resolved && ! isset( $this->resolved_assets[ $id ] ) ) {
-			$this->resolved_assets[ $id ] = $resolved;
-
-			return $resolved;
+			return $resolved_path;
 		}
 
 		return $src;
 	}
 
 	/**
-	 * Ensures we use the import syntax when loading un-compiled scripts from the
-	 * dev server.
+	 * Ensures we use the import syntax when loading un-compiled
+	 * scripts from the dev server.
 	 *
-	 * This function ensures that block esModules are not affected and only
+	 * This function ensures that block modules are not affected and only
 	 * modifies the required scripts.
 	 *
 	 * @param string $tag The original script tag.
@@ -304,8 +327,8 @@ class DevServer implements DevServerInterface {
 	 *
 	 * @return string The modified script tag or the original.
 	 */
-	public function modify_asset_loader_tags( string $tag, string $id, string $src ): string {
-		/** At this point the src already got modified by {@see self::modify_asset_loader_src()} */
+	public function filter_asset_loader_tags( string $tag, string $id, string $src ): string {
+		/** At this point the src already got modified by {@see self::filter_asset_loader_src()} */
 		if ( $this->contains_server_url( $src ) && isset( $this->resolved_assets[ $id ] ) ) {
 			return '<script type="module" src="' . esc_url( $src ) . '"></script>'; // phpcs:disable WordPress.WP.EnqueuedResources
 		}
@@ -314,33 +337,84 @@ class DevServer implements DevServerInterface {
 	}
 
 	/**
-	 * Check if the URL contains the base path.
+	 * Resolves an asset path either from the manifest or the file system.
 	 *
-	 * @param string $url Source URL.
+	 * @param string $file_path The original file path.
 	 *
-	 * @return bool Whether the URL contains the base path.
+	 * @return string|false The source path (relative from the srcDir) or false if not found.
 	 */
-	public function contains_base( string $url ): bool {
-		if ( '' !== $this->get_config( 'base' ) && false !== strpos( $url, $this->get_config( 'base' ) ) ) {
-			return true;
-		} else {
+	public function get_source_path( string $file_path ) {
+		$file_name = $this->get_file_name( $file_path );
+
+		if ( false === $file_name ) {
 			return false;
 		}
+
+		// Check if manifest exists and resolve from the manifest.
+		if ( isset( $this->manifest ) ) {
+			$manifest_entry = $this->manifest->get_by_file( $file_name );
+			if ( $manifest_entry && isset( $manifest_entry['src'] ) ) {
+				return $manifest_entry['src'];
+			}
+		}
+
+		// If not resolved from the manifest, try resolving from the file system.
+		$file_name        = str_replace( '.css', ".{$this->get_config('css')}", $file_name );
+		$file_system_path = "{$this->get_server_path()}/{$this->get_config('srcDir')}/{$file_name}";
+
+		if ( file_exists( $file_system_path ) ) {
+			return "{$this->get_config('srcDir')}/{$file_name}";
+		}
+
+		return false;
 	}
 
 	/**
-	 * Check if the URL contains the server base URL.
+	 * Gets the relative local path for block.json. This approach is based
+	 * on how npm handles local paths for packages.
 	 *
-	 * @param string $url Source URL.
+	 * @see https://developer.wordpress.org/block-editor/reference-guides/block-api/block-metadata/#wpdefinedpath
 	 *
-	 * @return bool Whether the URL contains the server base URL.
+	 * @example
+	 * ```
+	 * $from = '/absolute/path/to/my/folder/';
+	 * $to = '/absolute/path/to/my/local/render.php';
+	 *
+	 * echo $this->get_relative_local_path($from, $to);
+	 * // Output: "file:./../local/render.php"
+	 * ```
+	 *
+	 * @param string $from The path from which it needs to be relative from.
+	 * @param string $to The path to construct the relative path.
+	 *
+	 * @return string
 	 */
-	public function contains_server_url( string $url ): bool {
-		if ( '' !== $this->get_base_url() && false !== strpos( $url, $this->get_base_url() ) ) {
-			return true;
-		} else {
-			return false;
+	public function get_relative_local_path( string $from, string $to ): string {
+		$from_parts = explode( DIRECTORY_SEPARATOR, rtrim( $from, DIRECTORY_SEPARATOR ) );
+		$to_parts   = explode( DIRECTORY_SEPARATOR, rtrim( $to, DIRECTORY_SEPARATOR ) );
+
+		// Remove common prefix.
+		while ( $from_parts && $to_parts && $from_parts[0] === $to_parts[0] ) {
+			array_shift( $from_parts );
+			array_shift( $to_parts );
 		}
+
+		// Construct relative path.
+		return 'file:./' . str_repeat( '..' . DIRECTORY_SEPARATOR, count( $from_parts ) ) . implode( DIRECTORY_SEPARATOR, $to_parts );
+	}
+
+	/**
+	 * Removes query parameters, base and outDir from path to get the file name.
+	 *
+	 * @param string $path Path to get the file name from.
+	 *
+	 * @return false|string The file name or false if no valid file name.
+	 */
+	public function get_file_name( string $path ) {
+		$file_name = preg_replace( '/\?.*$/', '', $path );
+		$file_name = explode( "{$this->get_config( 'base' )}/{$this->get_config('outDir')}/", $file_name );
+
+		return ! isset( $file_name[1] ) ? false : $file_name[1];
 	}
 
 	/**
@@ -367,7 +441,7 @@ class DevServer implements DevServerInterface {
 	 * @return string The base URL (eg: my-host:5173/wp-content/plugins/my-plugin).
 	 */
 	public function get_base_url(): string {
-		return untrailingslashit( "{$this->get_server_url()}{$this->get_config('base')}" );
+		return untrailingslashit( "{$this->get_server_url()}{$this->get_config( 'base' )}" );
 	}
 
 	/**
@@ -389,21 +463,21 @@ class DevServer implements DevServerInterface {
 	}
 
 	/**
-	 * Get the server host.
-	 *
-	 * @return string The server host (eg: my-host).
-	 */
-	public function get_server_host(): string {
-		return $this->vite_server_host;
-	}
-
-	/**
 	 * Get the server port.
 	 *
 	 * @return string The server port (eg: 5173).
 	 */
 	public function get_server_port(): string {
 		return $this->vite_server_port;
+	}
+
+	/**
+	 * Get the server host.
+	 *
+	 * @return string The server host (eg: my-host).
+	 */
+	public function get_server_host(): string {
+		return $this->vite_server_host;
 	}
 
 	/**
@@ -419,5 +493,35 @@ class DevServer implements DevServerInterface {
 		}
 
 		return isset( $key ) ? $this->vite_config[ $key ] : $this->vite_config;
+	}
+
+	/**
+	 * Check if the path contains the base path.
+	 *
+	 * @param string $path Source path.
+	 *
+	 * @return bool Whether the path contains the base path.
+	 */
+	public function contains_base( string $path ): bool {
+		if ( '' !== $this->get_config( 'base' ) && false !== strpos( $path, $this->get_config( 'base' ) ) ) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	/**
+	 * Check if the URL contains the server base URL.
+	 *
+	 * @param string $url Source URL.
+	 *
+	 * @return bool Whether the URL contains the server base URL.
+	 */
+	public function contains_server_url( string $url ): bool {
+		if ( '' !== $this->get_base_url() && false !== strpos( $url, $this->get_base_url() ) ) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 }

@@ -24,7 +24,7 @@ Backend Utilities for <a href="https://github.com/mrOttoW/vite-wordpress">vite-w
 ## Requirements
 
 - PHP 7.4 or higher
-- WordPress 5.0 or higher
+- WordPress 6.0 or higher
 - A valid ViteJS configuration using <a href="https://github.com/mrOttoW/vite-wordpress">vite-wordpress</a>
 
 ---
