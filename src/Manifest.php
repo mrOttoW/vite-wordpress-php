@@ -65,14 +65,25 @@ class Manifest {
 	}
 
 	/**
-	 * Retrieves asset entries from the manifest by file name.
+	 * Retrieves asset entry from the manifest by file key.
 	 *
-	 * @param string $file The file name to search for.
+	 * @param string $file The file value to search for.
 	 *
 	 * @return ManifestChunk|false The matching manifest entry or false if not found.
 	 */
 	public static function get_by_file( string $file ) {
 		return static::$manifest->get_by_file( $file );
+	}
+
+	/**
+	 * Retrieves asset entry from the manifest by name key.
+	 *
+	 * @param string $name The name value to search for.
+	 *
+	 * @return ManifestChunk|false The matching manifest entry or false if not found.
+	 */
+	public static function get_by_name( string $name ) {
+		return static::$manifest->get_by_name( $name );
 	}
 
 	/**

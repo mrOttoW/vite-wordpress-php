@@ -56,11 +56,20 @@ interface ManifestResolverInterface {
 	public function get( ?string $id = null ): ?array;
 
 	/**
-	 * Retrieves a manifest entry by its file name.
+	 * Retrieves a manifest entry by file key.
 	 *
-	 * @param string $file The file name to search for.
+	 * @param string $file The file value to search for.
 	 *
 	 * @return ManifestChunk|false The matching manifest entry or false if not found.
 	 */
 	public function get_by_file( string $file );
+
+	/**
+	 * Retrieves a manifest entry by name key.
+	 *
+	 * @param string $name The name value to search for.
+	 *
+	 * @return ManifestChunk|false The matching manifest entry or false if not found.
+	 */
+	public function get_by_name( string $name );
 }

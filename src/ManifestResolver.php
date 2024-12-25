@@ -84,15 +84,32 @@ class ManifestResolver implements ManifestResolverInterface {
 	}
 
 	/**
-	 * Retrieves a manifest entry by its file name.
+	 * Retrieves a manifest entry by file key.
 	 *
-	 * @param string $file The file name to search for.
+	 * @param string $file The file value to search for.
 	 *
 	 * @return ManifestChunk|false The matching manifest entry or false if not found.
 	 */
 	public function get_by_file( string $file ) {
 		foreach ( $this->get_manifest() as $item ) {
-			if ( $item['file'] === $file ) {
+			if ( isset( $item['file'] ) && $item['file'] === $file ) {
+				return $item;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Retrieves a manifest entry by name key.
+	 *
+	 * @param string $name The name value to search for.
+	 *
+	 * @return ManifestChunk|false The matching manifest entry or false if not found.
+	 */
+	public function get_by_name( string $name ) {
+		foreach ( $this->get_manifest() as $item ) {
+			if ( isset( $item['name'] ) && $item['name'] === $name ) {
 				return $item;
 			}
 		}
