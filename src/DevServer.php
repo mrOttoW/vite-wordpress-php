@@ -76,6 +76,7 @@ class DevServer implements DevServerInterface {
 	public function register(): self {
 		if ( $this->is_config_active() && $this->is_client_active() ) {
 			add_action( 'wp_head', [ $this, 'inject_vite_client' ], $this->vite_client_hook_priority );
+			add_action( 'elementor/editor/before_enqueue_scripts', [ $this, 'inject_into_elementor_editor' ] );
 			add_action( 'init', [ $this, 'prioritize_import_map_hook' ] );
 			add_filter( 'body_class', [ $this, 'filter_body_class' ], 999 );
 			add_filter( 'script_module_loader_src', [ $this, 'filter_asset_loader_src' ], 999, 2 );
@@ -221,6 +222,17 @@ class DevServer implements DevServerInterface {
 		<script type="module">window.process = {env: {NODE_ENV: 'development'}};</script>
 		<?php
 		// phpcs:enable
+	}
+
+	/**
+	 * Hooks vite client into Elementor editor head (wp_head hook doesn't trigger in the editor).
+	 *
+	 * @return void
+	 */
+	public function inject_into_elementor_editor() {
+		if ( class_exists( 'Elementor\Plugin' ) && \Elementor\Plugin::$instance->editor->is_edit_mode() ) {
+			$this->inject_vite_client();
+		}
 	}
 
 	/**
