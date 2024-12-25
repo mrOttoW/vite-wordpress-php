@@ -16,6 +16,8 @@ Backend Utilities for <a href="https://github.com/mrOttoW/vite-wordpress">vite-w
 
 - **Manifest Resolver:** Parse and manage Vite's manifest file for registering assets in WordPress for production.
 - **Dev Server & HMR Integration:** Integrates Vite's HMR (Hot Module Replacement) and dev server into WordPress during development.
+  - Supports frontend block development
+  - Supports Elementor editor development
 - **Automatic Script Injection:** Automatically injects Vite client scripts into WordPress during development.
 - **Automatic Source Files Injection:**
   - Automatically changes src urls from enqueued scripts/styles to source files for HMR during development.
