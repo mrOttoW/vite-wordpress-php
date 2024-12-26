@@ -66,7 +66,7 @@ The `DevServer` class integrates the Vite development server with WordPress for 
 
 When using the <a href="https://github.com/mrOttoW/vite-wordpress">vite-wordpress</a> ViteJS plugin, if files have been built using `vite build`, are enqueued and the development server is running via the `vite` command:
 
-1. DevServer automatically detects all enqueued scripts & templates from the project through hooks, using the `base`, `srcDir`, and `outDir` settings from the vite plugin.
+1. DevServer automatically detects all enqueued scripts & templates from the project through hooks & `vite-wordpress` server configurations.
 2. It resolves scripts to source files served by the development server.
 3. It resolves templates to source files from the `srcDir` folder.
 4. It updates script tags from the project to use as modules and injects Vite's client to enable HMR (Hot Module Replacement).
@@ -80,7 +80,7 @@ However, when using a manifest, the Manifest Resolver will assist in resolving t
 offering better precision for a more complex assets folder & file structure.
 
 ### Manifest Resolver
-The `ManifestResolver` class handles reading and accessing the Vite manifest file and additionally integrates into the dev server for better precision.
+The `ManifestResolver` class handles reading and accessing the Vite manifest file and additionally integrates into the dev server.
 
 You can use the `ManifestResolver` instance, which needs to be wrapped in a function or helper class to work within hooks. Alternatively, you can use the `Manifest` facade, which handles this for you.
 
