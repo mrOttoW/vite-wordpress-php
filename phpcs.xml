@@ -48,6 +48,13 @@
 		<!-- Short array syntax looks cleaner and is easier to write -->
 		<exclude name="Universal.Arrays.DisallowShortArraySyntax"/>
 		<exclude name="Universal.Arrays.DisallowShortArraySyntax"/>
+
+		<!-- File & class naming adheres to PSR-4 for PSR autoloader compatibility -->
+		<exclude name="WordPress.Files.FileName.NotHyphenatedLowercase"/>
+		<exclude name="WordPress.Files.FileName.InvalidClassFileName"/>
+
+		<!-- Conflicts with PHPStan when using types for arrays -->
+		<exclude name="Squiz.Commenting.FunctionComment.IncorrectTypeHint"/>
 	</rule>
 
 	<!-- Include the WordPress-Extra standard. -->
@@ -105,23 +112,4 @@
 	Exclude specific files for specific sniffs and/or exclude sub-groups in sniffs.
 	#############################################################################
 	-->
-
-	<!-- File naming adheres to PSR-4 standards, ensuring compatibility with the PSR autoloader -->
-	<rule ref="WordPress.Files.FileName.NotHyphenatedLowercase">
-		<exclude-pattern>*\.php</exclude-pattern>
-	</rule>
-
-	<!-- Class naming adheres to PSR-4 standards, ensuring compatibility with the PSR autoloader -->
-	<rule ref="WordPress.Files.FileName.InvalidClassFileName">
-		<exclude-pattern>*\.php</exclude-pattern>
-	</rule>
-
-	<!-- Conflicts with PHPStan when using types for arrays -->
-	<rule ref="Squiz.Commenting.FunctionComment.IncorrectTypeHint">
-		<exclude-pattern>*\.php</exclude-pattern>
-	</rule>
-
-	<!--
-		Everything else follows WordPress coding standards
-	 -->
 </ruleset>

@@ -10,12 +10,14 @@ namespace ViteWordPress;
 /**
  * Interface DevServerInterface
  *
+ * @phpstan-import-type ManifestChunk from ManifestResolverInterface
  * @phpstan-type PluginConfig array{
  *        base: string,
  *        srcDir: string,
  *        outDir: string,
  *        css: string,
- *        manifest: boolean|string
+ *        manifest: boolean|string,
+ *        buildMap: array<string, ManifestChunk>
  *    }
  */
 interface DevServerInterface {

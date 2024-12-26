@@ -11,6 +11,7 @@ namespace ViteWordPress;
  * Class DevServer
  *
  * @phpstan-import-type PluginConfig from DevServerInterface
+ * @phpstan-import-type ManifestChunk from ManifestResolverInterface
  */
 class DevServer implements DevServerInterface {
 	/**
@@ -33,6 +34,13 @@ class DevServer implements DevServerInterface {
 	 * @var PluginConfig|null
 	 */
 	protected ?array $vite_config = null;
+
+	/**
+	 * Vite build map array from the server.
+	 *
+	 * @var array<string, ManifestChunk>|null
+	 */
+	protected ?array $vite_build = null;
 
 	/**
 	 * Vite client hook priority.
@@ -206,6 +214,9 @@ class DevServer implements DevServerInterface {
 		}
 
 		$this->vite_config = $request['data'];
+		$this->vite_build  = ! empty( $request['data']['buildMap'] )
+			? $request['data']['buildMap']
+			: null;
 
 		return true;
 	}
@@ -365,12 +376,22 @@ class DevServer implements DevServerInterface {
 		// Check if manifest exists and resolve from the manifest.
 		if ( isset( $this->manifest ) ) {
 			$manifest_entry = $this->manifest->get_by_file( $file_name );
+
 			if ( $manifest_entry && isset( $manifest_entry['src'] ) ) {
 				return $manifest_entry['src'];
 			}
 		}
 
-		// If not resolved from the manifest, try resolving from the file system.
+		// If not resolved from the manifest, try resolving via server's build map.
+		if ( isset( $this->vite_build[ $file_name ] ) ) {
+			$build_entry = $this->vite_build[ $file_name ];
+
+			if ( isset( $build_entry['src'] ) ) {
+				return $build_entry['src'];
+			}
+		}
+
+		// If not resolved from the build map, try resolving from the file system.
 		$file_name        = str_replace( '.css', ".{$this->get_config('css')}", $file_name );
 		$file_system_path = "{$this->get_server_path()}/{$this->get_config('srcDir')}/{$file_name}";
 
